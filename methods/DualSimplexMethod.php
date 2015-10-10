@@ -1,7 +1,7 @@
 <?php
 require_once("Fraction.php");
 
-class DualSimplexMethod
+class aDualSimplexMethod
 {
     public $error_msg = "";
     public $html = "";
@@ -117,7 +117,6 @@ class DualSimplexMethod
         //додаємо оцінки, остання в масиві буде містити значення f(x)
         $this->marks = array_merge($this->func_factors, $cells, array(0));
 
-//        $this->marksIndex = $this->basisCount + 1;
         foreach ($this->limitations as &$limit)
         {
             $limit['member'] = (int)$limit['member'];
