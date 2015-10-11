@@ -29,15 +29,7 @@ abstract class Simplex
      */
     abstract function checkMembers();
 
-    /** finding row which will go out of basis
-     * @return mixed
-     */
-    abstract function findOutRow();
-
-    /** finding column which will go into basis
-     * @return mixed
-     */
-    abstract function findInCol();
+    abstract function getResultelement();
 
     /** check conditions for getting resolve status
      * @return mixed
@@ -179,8 +171,8 @@ abstract class Simplex
     {
         $this->outRow = $this->inCol = array("index" => null, "value" => null);
 
-        $this->findOutRow();
-        $this->findInCol();
+        // Костыль для обычного и двоистого методов
+        $this->getResultelement();
 
         $this->basis[$this->outRow['index']] = $this->inCol['index'];
 
@@ -213,9 +205,43 @@ abstract class Simplex
     function run()
     {
         $this->buildMatrix();
-        do {
+        while ($this->mainCircle()) {
             $this->buildCurrentTable();
-        } while ($this->mainCircle() && !$this->checkForResolve());
+            if($this->checkForResolve()){
+                return false;
+            }
+        }
+
+        /*while ($this->mainCircle()){
+            $this->buildCurrentTable();
+            $atLeastOneNegativeVCH = false;
+            for ($i = 0; $i < $this->lims_count; $i++) {
+                if ($this->matrix[$i][$this->allVarsCount]->getNum() < 0) {
+                    $atLeastOneNegativeVCH = true;
+                }
+            }
+
+            if (!$atLeastOneNegativeVCH){
+                return true;
+            }
+
+            $negative = false;
+            for ($i = 0; $i < $this->lims_count; $i++) {
+                if ($this->matrix[$i][$this->allVarsCount]->getNum() < 0) {
+                    for ($j = 0; $j < $this->allVarsCount; $j++) {
+                        if ($this->matrix[$i][$j]->getNum() < 0) {
+                            $negative = true;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            if (!$negative) {
+                $this->error_msg = "МПР початкової задачі порожня!";
+                return false;
+            }
+        }*/
 
         return true;
     }

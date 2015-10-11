@@ -13,7 +13,9 @@ class SimpleSimplexMethod extends Simplex
         $this->function_vars = $function_vars;
         $this->limitations = $limitations;
 
-        $this->checkInputData();
+        if ($this->checkInputData()) {
+            $this->run();
+        }
     }
 
     /** checking input data for needed
@@ -31,11 +33,9 @@ class SimpleSimplexMethod extends Simplex
         }
 
         if ($isPositiveMarks) {
+            $this->makeVariables();
             if ($this->checkLimitsByMark() && $this->checkMembers()) {
-                $this->makeVariables();
                 $this->buildFirstTable();
-                echo $this->html;
-                $this->run();
             }
         } else {
             $this->error_msg = "Серед оцінок немає жодної додатньої.";
@@ -71,34 +71,94 @@ class SimpleSimplexMethod extends Simplex
      */
     function checkMembers()
     {
+        $isPositive = false;
         foreach ($this->limitations as $limit) {
-            if ($limit['member'] < 0) {
-                $this->error_msg = "Немає жодного додатнього вільного члену!";
-                return false;
+            if ($limit['member'] > 0) {
+                $isPositive = true;
+                break;
             }
+        }
+
+        if (!$isPositive) {
+            $this->error_msg = "Немає жодного додатнього вільного члену!";
+            return false;
         }
 
         return true;
     }
 
-    /** finding row which will go out of basis
-     * @return mixed
-     */
-    function findOutRow()
+    function getResultelement()
     {
-        // TODO: Implement findOutRow() method.
+        for ($i = 0; $i < $this->allVarsCount; $i++) {
+            $mark = $this->matrix[$this->lims_count][$i];
+            if ($mark->getNum() <= 0) {
+                continue;
+            }
+            $absMax = null;
+            if (!is_null($this->inCol["index"])) {
+                $absMax = Fraction::subtract(new Fraction(($mark->getNum()), $mark->getDenom()),
+                    new Fraction(($this->inCol["value"]->getNum()), $this->inCol["value"]->getDenom()));
+            }
+
+            if (is_null($this->inCol["index"]) || $absMax->getNum() > 0) {
+                $this->inCol["index"] = $i;
+                $this->inCol["value"] = $mark;
+            }
+        }
+
+        for ($i = 0; $i < $this->lims_count; $i++) {
+            $free_member = $this->matrix[$i][$this->allVarsCount];
+            if ($free_member->getNum() <= 0) {
+                continue;
+            }
+
+            $relation = Fraction::divide($free_member, $this->matrix[$i][$this->inCol["index"]]);
+
+            $absMin = null;
+            if (!is_null($this->outRow["index"])) {
+                $absMin = Fraction::subtract($this->outRow["value"], $relation);
+            }
+            if (is_null($this->outRow["index"]) || $absMin->getNum() > 0) {
+                $this->outRow["index"] = $i;
+                $this->outRow["value"] = $relation;
+            }
+        }
     }
 
-    /** finding column which will go into basis
+    /** check conditions for getting resolve status
      * @return mixed
      */
-    function findInCol()
-    {
-        // TODO: Implement findInCol() method.
-    }
-
     function checkForResolve()
     {
-        // TODO: Implement checkForResolve() method.
+        $atLeastOnePositiveMark = false;
+        for ($i = 0; $i < $this->allVarsCount; $i++) {
+            if($this->matrix[$this->lims_count][$i]->getNum() > 0){
+                $atLeastOnePositiveMark = true;
+            }
+        }
+
+        if (!$atLeastOnePositiveMark){
+            return true;
+        }
+
+        $positive = false;
+        for ($i = 0; $i < $this->allVarsCount; $i++) {
+            if($this->matrix[$this->lims_count][$i]->getNum() > 0){
+                for ($j = 0; $j < $this->lims_count; $j++) {
+                    if($this->matrix[$j][$i]->getNum() > 0){
+                        $positive = true;
+                        break;
+                    }
+                }
+            }
+        }
+
+        if (!$positive) {
+            $this->error_msg = "МПР початкової задачі порожня!";
+            return false;
+        }
+
+        return false;
     }
+
 }

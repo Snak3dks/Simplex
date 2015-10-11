@@ -1,3 +1,21 @@
+#init-form{
+    margin: 0px auto;
+    display: block;
+    width: 230px;
+    text-align: left;
+}
+
+#init-form p input[type="submit"]{
+    display: block;
+    margin: 0 auto;
+}
+
+#init-form p{
+    white-space: pre;
+}
+
+.clearfix{ clear: both; }
+
 input[type='number']{
     width: 50px;
     height: 25px;

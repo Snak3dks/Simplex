@@ -79,10 +79,7 @@ class DualSimplexMethod extends Simplex
         return true;
     }
 
-    /** finding row which will go out of basis
-     * @return mixed
-     */
-    function findOutRow()
+    function getResultelement()
     {
         for ($i = 0; $i < $this->lims_count; $i++) {
             $free_member = $this->matrix[$i][$this->allVarsCount];
@@ -99,13 +96,6 @@ class DualSimplexMethod extends Simplex
                 $this->outRow["value"] = $free_member;
             }
         }
-    }
-
-    /** finding column which will go into basis
-     * @return mixed
-     */
-    function findInCol()
-    {
         for ($i = 0; $i < $this->allVarsCount; $i++) {
             $element = $this->matrix[$this->outRow["index"]][$i];
             if ($element->getNum() >= 0) {
