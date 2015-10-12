@@ -13,7 +13,7 @@ class DualSimplexMethod extends Simplex
         $this->function_vars = $function_vars;
         $this->limitations = $limitations;
 
-        if($this->checkInputData()){
+        if ($this->checkInputData()) {
             $this->run();
         }
     }
@@ -40,6 +40,9 @@ class DualSimplexMethod extends Simplex
             $this->makeVariables();
             if ($this->checkMembers()) {
                 $this->buildFirstTable();
+            }
+            else{
+                return false;
             }
         } else {
             $this->error_msg = "Серед оцінок є додатні.";
@@ -79,7 +82,7 @@ class DualSimplexMethod extends Simplex
         return true;
     }
 
-    function getResultelement()
+    function getResultElement()
     {
         for ($i = 0; $i < $this->lims_count; $i++) {
             $free_member = $this->matrix[$i][$this->allVarsCount];
@@ -125,7 +128,7 @@ class DualSimplexMethod extends Simplex
             }
         }
 
-        if (!$atLeastOneNegativeVCH){
+        if (!$atLeastOneNegativeVCH) {
             return true;
         }
 

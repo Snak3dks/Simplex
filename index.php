@@ -59,27 +59,28 @@ if (isset($_POST['init'])) {
         $limitations[] = array('X' => $lims, 'inequality' => $_POST['usl' . $i], 'member' => $_POST['r' . $i]);
     }
 
+    $html = '<div style="text-align: center;">';
     switch($_POST['method']){
         case '1':
             $simple_simplex = new SimpleSimplexMethod($funcFactors, $limitations, $_POST['vars'], $_POST['limits']);
-            $html = '<h2>Симплекс-метод</h2>';
+            $html .= '<h2>Симплекс-метод</h2>';
             $html .= $simple_simplex->error_msg != null ? $simple_simplex->error_msg : $simple_simplex->html;
             break;
         case '2':
             $dual_simplex = new DualSimplexMethod($funcFactors, $limitations, $_POST['vars'], $_POST['limits']);
-            $html = '<h2>Двоїстий симплекс-метод</h2>';
+            $html .= '<h2>Двоїстий симплекс-метод</h2>';
             $html .= $dual_simplex->error_msg != null ? $dual_simplex->error_msg : $dual_simplex->html;
             break;
         case '3':
-            $html = '<h2>Метод Гоморі</h2>';
+            $html .= '<h2>Метод Гоморі</h2>';
             $html .= 'test';
             break;
         default:
-            $html = 'Не обрано метод для розв`язання!';
+            $html .= 'Не обрано метод для розв`язання!';
             break;
     }
-    echo '<div class="simple-little-table">' . $html . '</div>';
-
+    $html .= '</div>';
+    echo $html;
 } else {
     ?>
     <div class="simple-little-table">

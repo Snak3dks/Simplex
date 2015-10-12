@@ -189,3 +189,21 @@ body {
 .error_msg {
     color: #ff8843;
 }
+
+.breaking {
+    position: absolute;
+    top: 20%;
+    right: 5%;
+}
+
+.result-table td{
+    position: relative;
+}
+
+.result-table{
+    text-align: center;
+    display: block;
+    margin: 0 auto;
+    font-weight: bold;
+    font-size: 20px;
+}
