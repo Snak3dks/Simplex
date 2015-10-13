@@ -5,20 +5,19 @@ abstract class Simplex
 {
     public $html;
     public $error_msg;
-    public $answer;
 
     protected $vars_count;
     protected $lims_count;
     protected $function_vars;
+    protected $limitations;
 
     protected $allVarsCount;
-    protected $limitations;
     protected $marks;
     protected $basis;
     protected $matrix;
 
-    public $outRow;
-    public $inCol;
+    protected $outRow;
+    protected $inCol;
 
     /** checking input data for needed
      * @return mixed
@@ -30,6 +29,9 @@ abstract class Simplex
      */
     abstract function checkMembers();
 
+    /** getting result element for next step
+     * @return mixed
+     */
     abstract function getResultElement();
 
     /** check conditions for getting resolve status
@@ -173,7 +175,7 @@ abstract class Simplex
         $this->outRow = $this->inCol = array("index" => null, "value" => null);
 
         // Костыль для обычного и двоистого методов
-        $this->getResultElement();
+        $this->getResultelement();
 
         $this->basis[$this->outRow['index']] = $this->inCol['index'];
 
@@ -209,49 +211,41 @@ abstract class Simplex
         while ($this->mainCircle()) {
             $this->buildCurrentTable();
             if($this->checkForResolve()){
-                $answer = array();
-                $i = 0;
-                foreach ($this->function_vars as $rowKey => $row) {
-                    if ($this->basis[$rowKey] == $this->basis[$i]) {
-                        $answer[] = ($this->basis[$i] + 1);
-                    }
-                    $i++;
-                }
-                $html = '';
-                $i = 0;
-                $counter = 0;
-                foreach ($this->matrix as $rowKey => $row) {
-                    if(in_array($rowKey + 1, $answer)){
-                        foreach ($row as $cellKey => $cell) {
-                            if($cellKey == $this->allVarsCount){
-                                $counter++;
-                                if(count($this->function_vars) == $counter){
-                                    $html .= "<td><div>" . $cell->show() . "</div></td>";
-                                }
-                                else{
-                                    $html .= "<td><div style='margin-right: 5px;'>" . $cell->show() . "</div><div><span class='breaking'>;</span></div></td>";
-                                }
-                            }
-                        }
-                    }
-                    $i++;
-                }
-                $html = '<table class="result-table">
-                            <tr>
-                                <td>x<sup>*</sup></td>
-                                <td>(</td>' . $html . '
-                                <td>)</td>
-                                <td>, ƒ(x<sup>*</sup>) = </td>
-                                <td>' . $this->matrix[$this->lims_count][$this->allVarsCount]->show() .
-                                '</td>
-                            </tr>
-                        </table>';
-
-                $this->answer = $html;
-                $this->html = '<div class="simple-little-table">' . $this->html . '</div>' . $this->answer;
                 return false;
             }
         }
+
+        /*while ($this->mainCircle()){
+            $this->buildCurrentTable();
+            $atLeastOneNegativeVCH = false;
+            for ($i = 0; $i < $this->lims_count; $i++) {
+                if ($this->matrix[$i][$this->allVarsCount]->getNum() < 0) {
+                    $atLeastOneNegativeVCH = true;
+                }
+            }
+
+            if (!$atLeastOneNegativeVCH){
+                return true;
+            }
+
+            $negative = false;
+            for ($i = 0; $i < $this->lims_count; $i++) {
+                if ($this->matrix[$i][$this->allVarsCount]->getNum() < 0) {
+                    for ($j = 0; $j < $this->allVarsCount; $j++) {
+                        if ($this->matrix[$i][$j]->getNum() < 0) {
+                            $negative = true;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            if (!$negative) {
+                $this->error_msg = "МПР початкової задачі порожня!";
+                return false;
+            }
+        }*/
+
         return true;
     }
 }

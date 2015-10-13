@@ -37,9 +37,6 @@ class SimpleSimplexMethod extends Simplex
             if ($this->checkLimitsByMark() && $this->checkMembers()) {
                 $this->buildFirstTable();
             }
-            else{
-                return false;
-            }
         } else {
             $this->error_msg = "Серед оцінок немає жодної додатньої.";
             return false;
@@ -90,6 +87,9 @@ class SimpleSimplexMethod extends Simplex
         return true;
     }
 
+    /** getting result element for next step
+     * @return mixed
+     */
     function getResultElement()
     {
         for ($i = 0; $i < $this->allVarsCount; $i++) {
