@@ -106,6 +106,61 @@ class Fraction
         return new Fraction(($a->num * $b->denom), ($a->denom * $b->num));
     }
 
+    /*
+     * @param Fraction objects
+     * return minimum of fractions
+     */
+    static function min(Fraction $a, Fraction $b)
+    {
+        if($a->getNum() > 0 && $b->getNum() > 0)
+        {
+            if(self::subtract($a, $b)->getNum() <= 0)
+                return $a;
+            else
+                return $b;
+        }
+        elseif($a->getNum() < 0 && $b->getNum() < 0)
+        {
+            if(self::subtract(new Fraction($a->getNum()*(-1), $a->getDenom()),
+                              new Fraction($b->getNum()*(-1), $b->getDenom()))->getNum() > 0 )
+                return $a;
+            else
+                return $b;
+        }
+        elseif($a->getNum() < 0 )
+            return $a;
+        else
+            return $b;
+    }
+
+    /*
+     * @param Fraction objects
+     * return maximum of fractions
+     */
+    static function max(Fraction $a, Fraction $b)
+    {
+        if($a->getNum() > 0 && $b->getNum() > 0)
+        {
+            if(self::subtract($a, $b)->getNum() > 0)
+                return $a;
+            else
+                return $b;
+        }
+        elseif($a->getNum() < 0 && $b->getNum() < 0)
+        {
+            if(self::subtract(new Fraction($a->getNum()*(-1), $a->getDenom()),
+                    new Fraction($b->getNum()*(-1), $b->getDenom()))->getNum() <= 0 )
+                return $a;
+            else
+                return $b;
+        }
+        elseif($a->getNum() > 0 )
+            return $a;
+        else
+            return $b;
+    }
+
+
     /**
      * @param $a , $b - numeric
      * @return int
