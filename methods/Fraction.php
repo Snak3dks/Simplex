@@ -6,12 +6,14 @@ class Fraction
     private $denom = null;
     private $number = null;
 
-    function __construct($num, $denom = 1)
+    function __construct($num, $denom = 1, $multiplicity = true)
     {
         if ($denom == 0) return null;
         $this->num = $num;
         $this->denom = $denom;
-        $this->checkMultiplicity();
+        if($multiplicity){
+            $this->checkMultiplicity();
+        }
     }
 
     public function getNum()
@@ -44,6 +46,22 @@ class Fraction
                     </span>';
             //return $this->num . "/" . $this->denom;
         }
+    }
+
+    /** get reduced var (integer, fractional)
+     * @return array|bool
+     */
+    public function getReduced(){
+        $integer = (int)($this->num / $this->denom);
+        if(($integer) > 0){
+            $newNum = ($integer * $this->denom);
+            $integerFraction = new Fraction($newNum, $this->denom, false);
+            $fracational = self::subtract(new Fraction($this->num, $this->denom), $integerFraction);
+        }
+        else{
+            return false;
+        }
+        return array('integer' => $integer, 'fractional' => $fracational);
     }
 
 

@@ -248,4 +248,8 @@ abstract class Simplex
 
         return true;
     }
+
+    public function __get($attr){
+        return $this->$attr;
+    }
 }
