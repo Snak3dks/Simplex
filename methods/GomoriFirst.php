@@ -28,7 +28,7 @@ class GomoriFirst
             var_dump($non_integer_vars);
 
             $test = $simplex->matrix[$non_integer_vars[0]][$simplex->allVarsCount]->getReduced();
-            var_dump($test);
+//            var_dump($test);
 
             if (count($non_integer_vars) == 1) {
 
