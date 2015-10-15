@@ -1,68 +1,149 @@
 <?php
 
-require_once('Fraction.php');
-require_once('simplex/SimpleSimplexMethod.php');
-require_once('simplex/DualSimplexMethod.php');
+    require_once('Fraction.php');
+    require_once('simplex/SimpleSimplexMethod.php');
+    require_once('simplex/DualSimplexMethod.php');
 
-class GomoriFirst
-{
-    public $html = '';
-    public $error_msg = '';
-
-    function __construct($function_vars, $limitations, $vars_count, $lims_count)
+    class GomoriFirst
     {
-        /*$this->vars_count = (int)$vars_count;
-        $this->lims_count = (int)$lims_count;
-        $this->allVarsCount = $this->vars_count + $this->lims_count;
-        $this->function_vars = $function_vars;
-        $this->limitations = $limitations;*/
+        public $html = '';
+        public $error_msg = '';
 
-        $simplex = new SimpleSimplexMethod($function_vars, $limitations, $vars_count, $lims_count);
-        $this->html = $simplex->html;
-        $this->error_msg = $simplex->error_msg;
+        function __construct($function_vars, $limitations, $vars_count, $lims_count)
+        {
+            $simplex = new SimpleSimplexMethod($function_vars, $limitations, $vars_count, $lims_count);
+            $this->html = $simplex->html;
+            $this->error_msg = $simplex->error_msg;
 
-        $non_integer_vars = $this->checkForIntegerVars($simplex);
-        if ($non_integer_vars == null) {
-            $msg = 'Already optimal';
-        } else {
-            var_dump($non_integer_vars);
-
-            $test = $simplex->matrix[$non_integer_vars[0]][$simplex->allVarsCount]->getReduced();
-//            var_dump($test);
-
-            if (count($non_integer_vars) == 1) {
-
-            } else {
-
+            if($this->error_msg == ''){
+                $this->run($simplex);
             }
         }
-    }
 
-    /** Check for integer options in simple-simplex result
-     * @param $simplex
-     * @return array|null
-     */
-    function checkForIntegerVars($simplex)
-    {
-        $simplex_matrix = $simplex->matrix;
-        $simplex_allVarsCount = $simplex->allVarsCount;
-        $simplex_limsCount = $simplex->lims_count;
+        function run($simplex_obj){
+            $non_integer_vars = $this->checkForIntegerVars($simplex_obj);
+            if ($non_integer_vars == NULL)
+            {
+                return false;
+            }
+            else
+            {
+                $newMatrix = $this->buildCutOff($simplex_obj, $non_integer_vars);
+                $newSimpleObj = new DualSimplexMethod(null, null, null, null);
+                $newSimpleObj->runReady($newMatrix);
 
-        $non_integer_vars = null; // indexes of row with non-integer vars
-        $i = 0;
-        foreach ($simplex_matrix as $key => $row) {
-            if ($i > $simplex_limsCount) {
-                break;
+                $this->html .= $newSimpleObj->html;
+
+                $this->run($newSimpleObj);
             }
-            if (is_numeric($row[$simplex_allVarsCount]->show())) {
-                continue;
-            } else {
-                $non_integer_vars[] = $key;
-            }
-            $i++;
+            return true;
         }
 
-        return $non_integer_vars;
-    }
+        /** Check for integer options in simple-simplex result
+         * @param $simplex_object
+         * @return array|null
+         */
+        function checkForIntegerVars($simplex_object)
+        {
+            $matrix = $simplex_object->matrix;
+            $allVarsCount = $simplex_object->allVarsCount;
+            $limsCount = $simplex_object->lims_count;
 
-}
+            $non_integer_vars = NULL; // indexes of row with non-integer vars
+            $i = 0;
+            foreach ($matrix as $key => $row)
+            {
+                if ($i > $limsCount)
+                {
+                    break;
+                }
+                if (is_numeric($row[$allVarsCount]->show()))
+                {
+                    continue;
+                }
+                else
+                {
+                    $non_integer_vars[] = $key;
+                }
+                $i++;
+            }
+
+            return $non_integer_vars;
+        }
+
+        /**
+         * @param $matrix
+         * @param $non_int_vars
+         * @return array
+         */
+        function buildCutOff($matrix, $non_int_vars)
+        {
+            // Getting non-integer free members fractional parts
+            foreach ($non_int_vars as $var)
+            {
+                $max_fractional[$var] = $matrix->matrix[$var][$matrix->allVarsCount]->getReduced(false);
+            }
+            // Getting max of them
+            uasort($max_fractional, 'Fraction::max');
+
+            $first = current($max_fractional);
+            // Getting correlations if it`s more then 1 equals max fractional parts
+            foreach ($max_fractional as $key => $fractional)
+            {
+                if ($fractional == $first)
+                {
+                    $correlation = NULL;
+                    for ($i = $matrix->lims_count; $i < $matrix->allVarsCount; $i++)
+                    {
+                        if ($correlation == NULL)
+                        {
+                            $correlation = Fraction::add($matrix->matrix[$key][$i]->getReduced(false), $matrix->matrix[$key][++$i]->getReduced(false), false);
+                        }
+                        if (($correlation != NULL) && (($i + 1) < $matrix->allVarsCount))
+                        {
+                            $correlation = Fraction::add($correlation, $matrix->matrix[$key][$i + 1]->getReduced(false), false);
+                        }
+                    }
+                    $correlations[$key] = Fraction::divide($max_fractional[$key], $correlation);
+                }
+            }
+            // Getting max correlation
+            uasort($correlations, 'Fraction::max');
+            // Getting generation row to build cutoff
+
+            $generating_row = array_keys($correlations)[0]; //current($correlations);
+
+            $newMatrix = $matrix->matrix;
+            $allVarsCount = $matrix->allVarsCount + 1;
+            $basis = $matrix->basis;
+            $basis[] = $allVarsCount - 1;
+
+            // Cutoff => new row and col in matrix
+            foreach ($newMatrix as &$row)
+            {
+                $row[] = $row[$allVarsCount - 1];
+                $row[$allVarsCount - 1] = new Fraction(0, 1);
+            }
+            $newMatrix[] = $newMatrix[$matrix->lims_count];
+
+            foreach ($newMatrix[$matrix->lims_count] as $key => &$elem)
+            {
+                if (in_array($key, $basis) && $key != $allVarsCount - 1)
+                {
+                    $elem = new Fraction(0, 1);
+                }
+                elseif ($key == $allVarsCount - 1)
+                {
+                    $elem = new Fraction(1, 1);
+                }
+                else
+                {
+                    $elem = Fraction::multiply($newMatrix[$generating_row][$key], new Fraction(-1, 1));
+                }
+            }
+            $newMatrix[$matrix->lims_count][$allVarsCount] = Fraction::multiply($first, new Fraction(-1, 1));
+            $lims_count = $matrix->lims_count + 1;
+
+            return (object)array('matrix' => $newMatrix, 'allVarsCount' => $allVarsCount, 'lims_count' => $lims_count, 'basis' => $basis);
+        }
+    }

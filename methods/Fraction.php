@@ -34,44 +34,55 @@ class Fraction
             if($this->num < 0) {
                 $num = $this->num * (-1);
                 $sign = "-";
+                $class = " pad-left";
             }
             else{
+                $class = "";
                 $sign = "";
                 $num = $this->num;
             }
-            return '<span class="fraction">
-                        <p class="unit">'. $sign .'</p>
-                        <span class="numerator">' . $num . '</span>
-                        <span class="denominator">' . $this->denom . '</span>
-                    </span>';
+            return '<div class="fraction'. $class .'">
+			            <div class="num">
+				            <div class="sign">'. $sign .'</div>' . $num . '
+			            </div>
+			            <div class="denom">' . $this->denom . '</div>
+		            </div>';
             //return $this->num . "/" . $this->denom;
         }
     }
 
     /** get reduced var (integer, fractional)
-     * @return array|bool
+     * @param bool|true $getFull
+     * @return array|bool|Fraction|null
      */
-    public function getReduced(){
+    public function getReduced($getFull = true){
+        if($this->num < 0){
+            return new Fraction($this->denom - abs($this->num), $this->denom, false);
+        }
+
         $integer = (int)($this->num / $this->denom);
-        if(($integer) > 0){
+        if(($integer) != 0){
             $newNum = ($integer * $this->denom);
             $integerFraction = new Fraction($newNum, $this->denom, false);
             $fracational = self::subtract(new Fraction($this->num, $this->denom), $integerFraction);
         }
         else{
-            return false;
+            return new Fraction($this->num, $this->denom, false);
         }
-        return array('integer' => $integer, 'fractional' => $fracational);
+
+        if($getFull)
+            return array('integer' => $integer, 'fractional' => $fracational);
+        else
+            return $fracational;
     }
 
-
-    static function add(Fraction $a, Fraction $b)
+    static function add(Fraction $a, Fraction $b, $multiplicity = true)
     {
         if (empty($a->denom) || empty($b->denom))
             return null;
 
         $denom = self::nok($a->denom, $b->denom);
-        return new Fraction((($denom / $a->denom) * $a->num) + (($denom / $b->denom) * $b->num), $denom);
+        return new Fraction((($denom / $a->denom) * $a->num) + (($denom / $b->denom) * $b->num), $denom, $multiplicity);
     }
 
     static function subtract(Fraction $a, Fraction $b)
@@ -122,15 +133,17 @@ class Fraction
         elseif($a->getNum() < 0 && $b->getNum() < 0)
         {
             if(self::subtract(new Fraction($a->getNum()*(-1), $a->getDenom()),
-                              new Fraction($b->getNum()*(-1), $b->getDenom()))->getNum() > 0 )
+                    new Fraction($b->getNum()*(-1), $b->getDenom()))->getNum() > 0 )
                 return $a;
             else
                 return $b;
         }
         elseif($a->getNum() < 0 )
-            return $a;
+            return -1;
+        //return $a;
         else
-            return $b;
+            return 1;
+        //return $b;
     }
 
     /*
@@ -142,22 +155,28 @@ class Fraction
         if($a->getNum() > 0 && $b->getNum() > 0)
         {
             if(self::subtract($a, $b)->getNum() > 0)
-                return $a;
+                return -1;
+            //return $a;
             else
-                return $b;
+                return 1;
+            //return $a;
         }
         elseif($a->getNum() < 0 && $b->getNum() < 0)
         {
             if(self::subtract(new Fraction($a->getNum()*(-1), $a->getDenom()),
                     new Fraction($b->getNum()*(-1), $b->getDenom()))->getNum() <= 0 )
-                return $a;
+                return -1;
+            //return $a;
             else
-                return $b;
+                return 1;
+            //return $a;
         }
         elseif($a->getNum() > 0 )
-            return $a;
+            return -1;
+        //return $a;
         else
-            return $b;
+            return 1;
+        //return $a;
     }
 
 

@@ -153,21 +153,6 @@ input[type='number'] {
     background: #eee;
 }
 
-.fraction {
-    display: inline;
-    #position: absolute;
-    text-align: center;
-    vertical-align: middle;
-}
-
-.numerator {
-    border-bottom: 1px solid black;
-}
-
-.denominator {
-    display: block;
-}
-
 .unit {
     float: left;
     height: 100%;
@@ -193,7 +178,11 @@ body {
 .breaking {
     position: absolute;
     top: 20%;
-    right: 5%;
+    right: 0;
+}
+
+.fract-answer{
+    top: 0 !important;
 }
 
 .result-table td{
@@ -202,8 +191,26 @@ body {
 
 .result-table{
     text-align: center;
-    display: block;
+    #display: block;
     margin: 0 auto;
     font-weight: bold;
     font-size: 20px;
+}
+
+.result-table .fraction.pad-left{
+    padding-left: 10px;
+}
+
+.fraction{
+    text-align: center;
+}
+.num{
+    border-bottom: 1px solid black;
+    display: inline;
+    position: relative;
+}
+.sign{
+    position: absolute;
+    top: 40%;
+    left: -10px;
 }
