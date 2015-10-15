@@ -7,6 +7,7 @@ Classes for solving linear programming problems by simplex, dual-simplex and gom
 - simplex abstract class (main methods);
 - simple simplex method class (unique methods => extends simplex abstract class);
 - double simplex method class (unique methods => extends simplex abstract class);
+- first gomori method;
 
 # TODO
-- Implement Gomori method
+- second gomori method
