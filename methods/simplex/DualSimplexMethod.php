@@ -3,7 +3,7 @@
 
     class DualSimplexMethod extends Simplex
     {
-        function __construct($function_vars, $limitations, $vars_count, $lims_count)
+        function __construct($function_vars = null, $limitations = null, $vars_count = null, $lims_count = null)
         {
             if ($function_vars != NULL && $limitations != NULL && $vars_count != NULL && $lims_count != NULL)
             {
@@ -158,6 +158,7 @@
                 if ($this->matrix[$i][$this->allVarsCount]->getNum() < 0)
                 {
                     $atLeastOneNegativeVCH = true;
+                    break;
                 }
             }
 
@@ -198,6 +199,7 @@
             $this->allVarsCount = $params->allVarsCount;
             $this->lims_count = $params->lims_count;
             $this->basis = $params->basis;
+            $this->function_vars = $params->function_vars;
             $this->run();
         }
     }

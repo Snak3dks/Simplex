@@ -86,7 +86,7 @@
          */
         function buildFirstTable()
         {
-            $html = "<table><tr><th>Базис</th>";
+            $html = "<table class='simple-little-table'><tr><th>Базис</th>";
 
             for ($i = 0; $i < $this->allVarsCount; $i++)
             {
@@ -138,7 +138,6 @@
                 $this->buildCurrentTable();
                 if ($this->checkForResolve())
                 {
-
                     $answer = array_fill(0, $this->allVarsCount, 0);
                     $i = 0;
                     foreach ($this->matrix as $rowKey => $row)
@@ -166,7 +165,7 @@
                     }
                     $html = "";
                     $counter = 0;
-                    foreach ($answer as $item)
+                    foreach ($answer as $key => $item)
                     {
                         if (++$counter != $this->allVarsCount)
                         {
@@ -182,64 +181,16 @@
                                             <td>x<sup>*</sup></td>
                                             <td>(</td>' . $html . '
                                             <td>)</td>
-                                            <td>, ƒ(x<sup>*</sup>) = </td>
+                                            <td>, ƒ(x<sup>*</sup>) =&nbsp;</td>
                                             <td>' . $this->matrix[$this->lims_count][$this->allVarsCount]->show() . '</td>
                                         </tr>
                                      </table>';
 
-                    /*                  $answer = array();
-                                        $i = 0;
-                                        foreach ($this->function_vars as $rowKey => $row)
-                                        {
-                                            if ($this->basis[$rowKey] == $this->basis[$i])
-                                            {
-                                                $answer[] = ($this->basis[$i] + 1);
-                                            }
-                                            $i++;
-                                        }
-                                        $html = '';
-                                        $i = 0;
-                                        $counter = 0;
-                                        foreach ($this->matrix as $rowKey => $row)
-                                        {
-                                            if (in_array($rowKey + 1, $answer))
-                                            {
-                                                foreach ($row as $cellKey => $cell)
-                                                {
-                                                    if ($cellKey == $this->allVarsCount && $rowKey != $this->lims_count)
-                                                    {
-                                                        $counter++;
-                                                        if (count($this->function_vars) == $counter)
-                                                        {
-                                                            $html .= "<td><div>" . $cell->show() . "</div></td>";
-                                                        }
-                                                        else
-                                                        {
-                                                            $html .= "<td><div style='margin-right: 5px;'>" . $cell->show() . "</div><div><span class='breaking'>;</span></div></td>";
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                            $i++;
-                                        }
-                                        $html = '<table class="result-table">
-                                                <tr>
-                                                    <td>x<sup>*</sup></td>
-                                                    <td>(</td>' . $html . '
-                                                    <td>)</td>
-                                                    <td>, ƒ(x<sup>*</sup>) = </td>
-                                                    <td>' . $this->matrix[$this->lims_count][$this->allVarsCount]->show() .
-                                            '</td>
-                                                </tr>
-                                            </table>';
-
-                                        $this->answer = $html;
-                    */
-
-                    $this->html = '<div class="simple-little-table">' . $this->html . '</div>' . $this->answer;
+                    $this->html = $this->html . $this->answer;
 
                     return false;
                 }
+
             }
 
             return true;
@@ -270,6 +221,12 @@
 
             $this->getResultelement();
 
+            if($this->inCol['index'] == null || $this->outRow['index'] == null)
+            {
+                //echo 'bad';
+                //return false;
+            }
+
             $this->basis[$this->outRow['index']] = $this->inCol['index'];
 
             $resultElem = new Fraction($this->matrix[$this->outRow['index']][$this->inCol["index"]]->getNum(), $this->matrix[$this->outRow['index']][$this->inCol["index"]]->getDenom());
@@ -291,8 +248,7 @@
 
                 for ($j = 0; $j < $this->allVarsCount + 1; $j++)
                 {
-                    $this->matrix[$i][$j] = Fraction::add($this->matrix[$i][$j], new Fraction($this->matrix[$this->outRow['index']][$j]->getNum() * $sign * $num, $this->matrix[$this->outRow['index']][$j]->getDenom() * $denom)
-                    );
+                    $this->matrix[$i][$j] = Fraction::add($this->matrix[$i][$j], new Fraction($this->matrix[$this->outRow['index']][$j]->getNum() * $sign * $num, $this->matrix[$this->outRow['index']][$j]->getDenom() * $denom));
                 }
             }
 
@@ -309,7 +265,7 @@
          */
         function buildCurrentTable()
         {
-            $html = "<table><tr><th>Базис</th>";
+            $html = "<table class='simple-little-table'><tr><th>Базис</th>";
             for ($i = 0; $i < $this->allVarsCount; $i++)
             {
                 $html .= "<th>X" . ($i + 1) . "</th>";

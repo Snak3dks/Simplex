@@ -15,27 +15,32 @@
             $this->html = $simplex->html;
             $this->error_msg = $simplex->error_msg;
 
-            if($this->error_msg == ''){
-                $this->run($simplex);
-            }
+            //echo $this->html;
+            //if($this->error_msg == ''){
+            $this->run($simplex);
+            //}
         }
 
-        function run($simplex_obj){
+        function run($simplex_obj)
+        {
             $non_integer_vars = $this->checkForIntegerVars($simplex_obj);
-            if ($non_integer_vars == NULL)
+            if ($non_integer_vars == null)
             {
                 return false;
             }
             else
             {
                 $newMatrix = $this->buildCutOff($simplex_obj, $non_integer_vars);
-                $newSimpleObj = new DualSimplexMethod(null, null, null, null);
+                $newSimpleObj = new DualSimplexMethod();
                 $newSimpleObj->runReady($newMatrix);
 
                 $this->html .= $newSimpleObj->html;
 
+                //echo $newSimpleObj->html;
+
                 $this->run($newSimpleObj);
             }
+
             return true;
         }
 
@@ -49,7 +54,7 @@
             $allVarsCount = $simplex_object->allVarsCount;
             $limsCount = $simplex_object->lims_count;
 
-            $non_integer_vars = NULL; // indexes of row with non-integer vars
+            $non_integer_vars = null; // indexes of row with non-integer vars
             $i = 0;
             foreach ($matrix as $key => $row)
             {
@@ -92,14 +97,14 @@
             {
                 if ($fractional == $first)
                 {
-                    $correlation = NULL;
+                    $correlation = null;
                     for ($i = $matrix->lims_count; $i < $matrix->allVarsCount; $i++)
                     {
-                        if ($correlation == NULL)
+                        if ($correlation == null)
                         {
                             $correlation = Fraction::add($matrix->matrix[$key][$i]->getReduced(false), $matrix->matrix[$key][++$i]->getReduced(false), false);
                         }
-                        if (($correlation != NULL) && (($i + 1) < $matrix->allVarsCount))
+                        if (($correlation != null) && (($i + 1) < $matrix->allVarsCount))
                         {
                             $correlation = Fraction::add($correlation, $matrix->matrix[$key][$i + 1]->getReduced(false), false);
                         }
