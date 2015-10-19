@@ -129,7 +129,7 @@
                         include_once('methods/GomoriFirst.php');
                         $gomori_first = new GomoriFirst($funcFactors, $limitations, $_POST['vars'], $_POST['limits']);
                         $html .= '<h2 class="title">Перший алгоритм Гоморі</h2>';
-                        $html .= $gomori_first->error_msg != null ? $gomori_first->html : $gomori_first->html;
+                        $html .= $gomori_first->error_msg != null ? $gomori_first->error_msg : $gomori_first->html;
                         break;
                     default:
                         $html .= 'Не обрано метод для розв`язання!';
@@ -164,6 +164,7 @@
                             <input id="vars-count" class="form-control number-input" type="number"
                                    name="init[variables]"
                                    min="1"
+                                   max="10"
                                    value="2"
                                    required="required"/>
                         </div>
@@ -175,6 +176,7 @@
                             <input id="lims-count" class="form-control number-input" type="number"
                                    name="init[limitations]"
                                    min="1"
+                                   max="10"
                                    value="2" required="required"/>
                         </div>
                     </div>
@@ -188,9 +190,36 @@
             }
         ?>
 </div>
-
 <script>
     $('.number-input').bootstrapNumber();
+
+    $(".input-group button").mousedown(function () {
+        btn = $(this);
+        input = btn.closest('.input-group').find('input');
+        btn.closest('.input-group').find('button').prop("disabled", false);
+
+        if (btn.attr('data-dir') == 'up') {
+            action = setInterval(function(){
+                if ( input.attr('max') == undefined || parseInt(input.val()) < parseInt(input.attr('max')) ) {
+                    input.val(parseInt(input.val())+1);
+                }else{
+                    btn.prop("disabled", true);
+                    clearInterval(action);
+                }
+            }, 50);
+        } else {
+            action = setInterval(function(){
+                if ( input.attr('min') == undefined || parseInt(input.val()) > parseInt(input.attr('min')) ) {
+                    input.val(parseInt(input.val())-1);
+                }else{
+                    btn.prop("disabled", true);
+                    clearInterval(action);
+                }
+            }, 50);
+        }
+    }).mouseup(function(){
+        clearInterval(action);
+    });
 </script>
 </body>
 </html>

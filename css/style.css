@@ -3,7 +3,7 @@
 }
 
 #init-form input {
-    width: 40px;
+    width: 50px;
 }
 
 .clearfix {
@@ -115,4 +115,12 @@ body {
     position: absolute;
     top: 40%;
     left: -10px;
+}
+
+hr{
+    border-color: #3B5DA1 !important;
+}
+
+.cut-off{
+    background: rgb(224, 237, 204) !important;
 }

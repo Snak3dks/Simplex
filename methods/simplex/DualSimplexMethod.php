@@ -5,7 +5,7 @@
     {
         function __construct($function_vars = null, $limitations = null, $vars_count = null, $lims_count = null)
         {
-            if ($function_vars != NULL && $limitations != NULL && $vars_count != NULL && $lims_count != NULL)
+            if ($function_vars != null && $limitations != null && $vars_count != null && $lims_count != null)
             {
                 $this->vars_count = (int)$vars_count;
                 $this->lims_count = (int)$lims_count;
@@ -107,14 +107,15 @@
 
         function getResultElement()
         {
-            for ($i = 0; $i < $this->lims_count; $i++)
+            for ($i = 0, $counter = 0; $i < $this->lims_count; $i++)
             {
                 $free_member = $this->matrix[$i][$this->allVarsCount];
                 if ($free_member->getNum() >= 0)
                 {
+                    $counter++;
                     continue;
                 }
-                $absMin = NULL;
+                $absMin = null;
                 if (!is_null($this->outRow["index"]))
                 {
                     $absMin = Fraction::subtract(new Fraction(($free_member->getNum() * (-1)), $free_member->getDenom()),
@@ -126,15 +127,22 @@
                     $this->outRow["value"] = $free_member;
                 }
             }
-            for ($i = 0; $i < $this->allVarsCount; $i++)
+
+            if ($counter == $i)
+            {
+                return false;
+            }
+
+            for ($i = 0, $counter = 0; $i < $this->allVarsCount; $i++)
             {
                 $element = $this->matrix[$this->outRow["index"]][$i];
                 if ($element->getNum() >= 0)
                 {
+                    $counter++;
                     continue;
                 }
                 $relation = Fraction::divide($this->matrix[$this->lims_count][$i], $element);
-                $absMin = NULL;
+                $absMin = null;
                 if (!is_null($this->inCol["index"]))
                 {
                     $absMin = Fraction::subtract($relation, $this->inCol["value"]);
@@ -145,6 +153,13 @@
                     $this->inCol["value"] = $relation;
                 }
             }
+
+            if ($counter == $i)
+            {
+                return false;
+            }
+
+            return true;
         }
 
         /** check conditions for getting resolve status
@@ -200,6 +215,14 @@
             $this->lims_count = $params->lims_count;
             $this->basis = $params->basis;
             $this->function_vars = $params->function_vars;
+
+            $this->cutOffVars[] = $this->lims_count + 1;
+
+            $temp = array_flip($this->cutOffVars);
+            $this->html .= "<hr><h3>Побудоване відсічення (S" . ($temp[$this->lims_count] + 1) . "):</h3>";
+            $this->buildCurrentTable($this->lims_count);
+            $this->html .= "<hr><h3>Застосування двоїстого симплекс методу...</h3>";
+
             $this->run();
         }
     }

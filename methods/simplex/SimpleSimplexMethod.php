@@ -110,11 +110,12 @@
          */
         function getResultElement()
         {
-            for ($i = 0; $i < $this->allVarsCount; $i++)
+            for ($i = 0, $counter = 0; $i < $this->allVarsCount; $i++)
             {
                 $mark = $this->matrix[$this->lims_count][$i];
                 if ($mark->getNum() <= 0)
                 {
+                    $counter++;
                     continue;
                 }
                 $absMax = NULL;
@@ -132,11 +133,17 @@
                 }
             }
 
-            for ($i = 0; $i < $this->lims_count; $i++)
+            if ($counter == $i)
+            {
+                return false;
+            }
+
+            for ($i = 0, $counter = 0; $i < $this->lims_count; $i++)
             {
                 $free_member = $this->matrix[$i][$this->allVarsCount];
-                if ($free_member->getNum() < 0 || $this->matrix[$i][$this->inCol["index"]]->getNum() < 0)
+                if ($free_member->getNum() <= 0 || $this->matrix[$i][$this->inCol["index"]]->getNum() <= 0)
                 {
+                    $counter++;
                     continue;
                 }
 
@@ -153,6 +160,13 @@
                     $this->outRow["value"] = $relation;
                 }
             }
+
+            if ($counter == $i)
+            {
+                return false;
+            }
+
+            return true;
         }
 
         /** check conditions for getting resolve status

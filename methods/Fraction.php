@@ -11,9 +11,9 @@ class Fraction
         if ($denom == 0) return null;
         $this->num = $num;
         $this->denom = $denom;
-        if($multiplicity){
+        //if($multiplicity){
             $this->checkMultiplicity();
-        }
+        //}
     }
 
     public function getNum()
@@ -56,7 +56,7 @@ class Fraction
      * @return array|bool|Fraction|null
      */
     public function getReduced($getFull = true){
-        if($this->num < 0){
+        if($this->num <- 0){
             return new Fraction($this->denom - abs($this->num), $this->denom, false);
         }
 
@@ -93,9 +93,9 @@ class Fraction
         $denom = self::nok($a->denom, $b->denom);
 
         if ($a->num < 0 && $b->num < 0)
-            return new Fraction(((($denom / $a->denom) * $a->num) + (($denom / $b->denom) * $b->num)), $denom);
-
-        return new Fraction((($denom / $a->denom) * $a->num) - (($denom / $b->denom) * $b->num), $denom);
+            return new Fraction(((($denom / $a->denom) * $a->num) + (($denom / $b->denom) * $b->num)), $denom, false);
+        
+        return new Fraction((($denom / $a->denom) * $a->num) - (($denom / $b->denom) * $b->num), $denom, false);
     }
 
     static function multiply(Fraction $a, Fraction $b)

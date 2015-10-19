@@ -18,6 +18,9 @@
 
         protected $outRow;
         protected $inCol;
+        protected $resolved = false;
+
+        protected $cutOffVars = array();
 
         /** checking input data for needed
          * @return mixed
@@ -135,7 +138,6 @@
 
             while ($this->mainCircle())
             {
-                $this->buildCurrentTable();
                 if ($this->checkForResolve())
                 {
                     $answer = array_fill(0, $this->allVarsCount, 0);
@@ -188,9 +190,9 @@
 
                     $this->html = $this->html . $this->answer;
 
+                    $this->resolved = true;
                     return false;
                 }
-
             }
 
             return true;
@@ -221,12 +223,6 @@
 
             $this->getResultelement();
 
-            if($this->inCol['index'] == null || $this->outRow['index'] == null)
-            {
-                //echo 'bad';
-                //return false;
-            }
-
             $this->basis[$this->outRow['index']] = $this->inCol['index'];
 
             $resultElem = new Fraction($this->matrix[$this->outRow['index']][$this->inCol["index"]]->getNum(), $this->matrix[$this->outRow['index']][$this->inCol["index"]]->getDenom());
@@ -252,6 +248,8 @@
                 }
             }
 
+            $this->buildCurrentTable();
+
             return true;
         }
 
@@ -263,12 +261,22 @@
         /** building current simplex table
          * @return mixed
          */
-        function buildCurrentTable()
+        public function buildCurrentTable($index = null)
         {
+            $var = (object)array(cutOff => "S", basis => 'X');
+            $temp = array_flip($this->cutOffVars);
+
             $html = "<table class='simple-little-table'><tr><th>Базис</th>";
             for ($i = 0; $i < $this->allVarsCount; $i++)
             {
-                $html .= "<th>X" . ($i + 1) . "</th>";
+                if(in_array(($i), $this->cutOffVars))
+                {
+                    $html .= "<th>$var->cutOff" . ($temp[$i] + 1) . "</th>";
+                }
+                else
+                {
+                    $html .= "<th>$var->basis" . ($i + 1) . "</th>";
+                }
             }
             $html .= "<th>В.Ч</th></tr>";
 
@@ -278,7 +286,14 @@
             {
                 if ($i != $this->lims_count)
                 {
-                    $html .= "<tr><th>X" . ($this->basis[$i] + 1) . "</th>";
+                    if(in_array(($this->basis[$i]), $this->cutOffVars))
+                    {
+                        $html .= "<tr><th>S" . ($temp[$this->basis[$i]] + 1) . "</th>";
+                    }
+                    else
+                    {
+                        $html .= "<tr><th>X" . ($this->basis[$i] + 1) . "</th>";
+                    }
                 }
                 else
                 {
@@ -286,7 +301,15 @@
                 }
                 foreach ($row as $cellKey => $cell)
                 {
-                    $html .= "<td>" . $cell->show() . "</td>";
+                    if($index != null && ($rowKey == $index - 1 || $cellKey == $index + 1))
+                    {
+                        $html .= "<td class='cut-off'>" . $cell->show() . "</td>";
+                    }
+                    else
+                    {
+                        $html .= "<td>" . $cell->show() . "</td>";
+                    }
+
                 }
                 $i++;
             }

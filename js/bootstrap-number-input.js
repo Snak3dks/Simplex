@@ -49,7 +49,7 @@
             var down = $("<button type='button'>-</button>").attr('class', 'btn btn-' + settings.downClass).click(function () {
                 setText(parseInt(clone.val()) - 1);
             });
-            var up = $("<button type='button'>+</button>").attr('class', 'btn btn-' + settings.upClass).click(function () {
+            var up = $("<button type='button' data-dir='up'>+</button>").attr('class', 'btn btn-' + settings.upClass).click(function () {
                 setText(parseInt(clone.val()) + 1);
             });
             $("<span class='input-group-btn'></span>").append(down).appendTo(group);

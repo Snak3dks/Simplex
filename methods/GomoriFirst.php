@@ -16,9 +16,9 @@
             $this->error_msg = $simplex->error_msg;
 
             //echo $this->html;
-            //if($this->error_msg == ''){
-            $this->run($simplex);
-            //}
+            if($this->error_msg == ''){
+                $this->run($simplex);
+            }
         }
 
         function run($simplex_obj)
@@ -36,9 +36,9 @@
 
                 $this->html .= $newSimpleObj->html;
 
-                //echo $newSimpleObj->html;
-
-                $this->run($newSimpleObj);
+                if(!$newSimpleObj){
+                    $this->run($newSimpleObj);
+                }
             }
 
             return true;
