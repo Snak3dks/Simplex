@@ -8,36 +8,60 @@
     {
         public $html = '';
         public $error_msg = '';
+        private $neededVarsIndexes = array();
+        private $cutOffVars = array();
 
         function __construct($function_vars, $limitations, $vars_count, $lims_count)
         {
+            for ($i = 0; $i <= $lims_count; $i++)
+            {
+                $this->neededVarsIndexes[] = $i;
+            }
+
             $simplex = new SimpleSimplexMethod($function_vars, $limitations, $vars_count, $lims_count);
             $this->html = $simplex->html;
             $this->error_msg = $simplex->error_msg;
 
             //echo $this->html;
-            if($this->error_msg == ''){
+            if ($this->error_msg == '')
+            {
                 $this->run($simplex);
             }
         }
 
         function run($simplex_obj)
         {
-            $non_integer_vars = $this->checkForIntegerVars($simplex_obj);
-            if ($non_integer_vars == null)
+            $needToResolve = false;
+            for ($i = 0; $i < $simplex_obj->lims_count; $i++)
             {
-                return false;
+                if(in_array($i, $simplex_obj->basis)){
+                    if(!is_integer($simplex_obj->matrix[$i][$simplex_obj->allVarsCount]->show())){
+                        $needToResolve = true;
+                        break;
+                    }
+                }
             }
-            else
+
+            if($needToResolve)
             {
-                $newMatrix = $this->buildCutOff($simplex_obj, $non_integer_vars);
-                $newSimpleObj = new DualSimplexMethod();
-                $newSimpleObj->runReady($newMatrix);
+                $non_integer_vars = $this->checkForIntegerVars($simplex_obj);
+                if ($non_integer_vars == null)
+                {
+                    return false;
+                }
+                else
+                {
+                    $newMatrix = $this->buildCutOff($simplex_obj, $non_integer_vars);
+                    $this->cutOffVars[] = $newMatrix->lims_count + 1;
+                    $newSimpleObj = new DualSimplexMethod();
+                    $newSimpleObj->runReady($newMatrix, $this->cutOffVars);
 
-                $this->html .= $newSimpleObj->html;
+                    $this->html .= $newSimpleObj->html;
 
-                if(!$newSimpleObj){
-                    $this->run($newSimpleObj);
+                    /*if (!$newSimpleObj)
+                    {*/
+                        $this->run($newSimpleObj);
+                    /*}*/
                 }
             }
 
@@ -143,7 +167,7 @@
                 }
                 else
                 {
-                    $elem = Fraction::multiply($newMatrix[$generating_row][$key], new Fraction(-1, 1));
+                    $elem = Fraction::multiply($newMatrix[$generating_row][$key]->getReduced(false), new Fraction(-1, 1));
                 }
             }
             $newMatrix[$matrix->lims_count][$allVarsCount] = Fraction::multiply($first, new Fraction(-1, 1));

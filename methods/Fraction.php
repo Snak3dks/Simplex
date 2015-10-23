@@ -56,7 +56,7 @@ class Fraction
      * @return array|bool|Fraction|null
      */
     public function getReduced($getFull = true){
-        if($this->num <- 0){
+        if($this->num < 0){
             return new Fraction($this->denom - abs($this->num), $this->denom, false);
         }
 

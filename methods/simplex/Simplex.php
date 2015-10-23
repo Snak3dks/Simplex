@@ -3,6 +3,7 @@
 
     abstract class Simplex
     {
+        public $method;
         public $html;
         public $error_msg;
 
@@ -62,13 +63,25 @@
 
                 $limit['X'][] = $limit['member'];
 
-                if ($limit['inequality'] == "more")
+               /* if ($this->method == 'SimpleSimplexMethod')
                 {
-                    array_walk($limit['X'], function (&$value)
+                    if ($limit['inequality'] == "more")
                     {
-                        $value *= (-1);
-                    });
+                        $limit['X'][] = $limit['X'][$this->allVarsCount];
+                        $limit['X'][$this->allVarsCount] = -1;
+                        $allVarsInc = true;
+                    }
                 }
+                else
+                {*/
+                    if ($limit['inequality'] == "more")
+                    {
+                        array_walk($limit['X'], function (&$value)
+                        {
+                            $value *= (-1);
+                        });
+                    }
+                /*}*/
 
                 // adding basis variable
                 $index = $this->vars_count + $basisIndex;
@@ -81,6 +94,9 @@
 
                 $basisIndex++;
             }
+
+            if($allVarsInc)
+                $this->allVarsCount++;
         }
 
         /**
@@ -124,6 +140,7 @@
             $html .= "</tr></table>";
 
             $this->html = $html;
+            echo $this->html;
         }
 
         /** main method start function
@@ -131,7 +148,7 @@
          */
         function run()
         {
-            if ($this->matrix == NULL)
+            if ($this->matrix == null)
             {
                 $this->buildMatrix();
             }
@@ -191,6 +208,7 @@
                     $this->html = $this->html . $this->answer;
 
                     $this->resolved = true;
+
                     return false;
                 }
             }
@@ -208,7 +226,9 @@
             {
                 $row = array();
                 for ($i = 0; $i < $this->allVarsCount + 1; $i++)
+                {
                     $row[] = new Fraction($limit["X"][$i]);
+                }
 
                 $this->matrix[] = $row;
             }
@@ -219,7 +239,7 @@
          */
         function mainCircle()
         {
-            $this->outRow = $this->inCol = array("index" => NULL, "value" => NULL);
+            $this->outRow = $this->inCol = array("index" => null, "value" => null);
 
             $this->getResultelement();
 
@@ -269,7 +289,7 @@
             $html = "<table class='simple-little-table'><tr><th>Базис</th>";
             for ($i = 0; $i < $this->allVarsCount; $i++)
             {
-                if(in_array(($i), $this->cutOffVars))
+                if (in_array(($i), $this->cutOffVars))
                 {
                     $html .= "<th>$var->cutOff" . ($temp[$i] + 1) . "</th>";
                 }
@@ -286,7 +306,7 @@
             {
                 if ($i != $this->lims_count)
                 {
-                    if(in_array(($this->basis[$i]), $this->cutOffVars))
+                    if (in_array(($this->basis[$i]), $this->cutOffVars))
                     {
                         $html .= "<tr><th>S" . ($temp[$this->basis[$i]] + 1) . "</th>";
                     }
@@ -301,7 +321,7 @@
                 }
                 foreach ($row as $cellKey => $cell)
                 {
-                    if($index != null && ($rowKey == $index - 1 || $cellKey == $index + 1))
+                    if ($index != null && ($rowKey == $index - 1 || $cellKey == $index + 1))
                     {
                         $html .= "<td class='cut-off'>" . $cell->show() . "</td>";
                     }

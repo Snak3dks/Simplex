@@ -5,6 +5,7 @@
     {
         function __construct($function_vars, $limitations, $vars_count, $lims_count)
         {
+            $this->method = 'SimpleSimplexMethod';
             $this->vars_count = (int)$vars_count;
             $this->lims_count = (int)$lims_count;
 

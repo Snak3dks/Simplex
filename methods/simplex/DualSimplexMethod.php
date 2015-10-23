@@ -147,7 +147,7 @@
                 {
                     $absMin = Fraction::subtract($relation, $this->inCol["value"]);
                 }
-                if (is_null($this->inCol["index"]) || $absMin->getNum() < 0)
+                if (is_null($this->inCol["index"]) || $absMin->getNum() <= 0)
                 {
                     $this->inCol["index"] = $i;
                     $this->inCol["value"] = $relation;
@@ -208,7 +208,7 @@
             return false;
         }
 
-        function runReady($params)
+        function runReady($params, $cutOffVars)
         {
             $this->matrix = $params->matrix;
             $this->allVarsCount = $params->allVarsCount;
@@ -216,13 +216,12 @@
             $this->basis = $params->basis;
             $this->function_vars = $params->function_vars;
 
-            $this->cutOffVars[] = $this->lims_count + 1;
+            $this->cutOffVars = $cutOffVars;
 
             $temp = array_flip($this->cutOffVars);
-            $this->html .= "<hr><h3>Побудоване відсічення (S" . ($temp[$this->lims_count] + 1) . "):</h3>";
+            $this->html .= "<hr><h3>Побудоване відсічення (S" . ($temp[$this->lims_count + 1] + 1) . "):</h3>";
             $this->buildCurrentTable($this->lims_count);
             $this->html .= "<hr><h3>Застосування двоїстого симплекс методу...</h3>";
-
             $this->run();
         }
     }
